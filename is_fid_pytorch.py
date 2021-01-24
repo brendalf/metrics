@@ -83,24 +83,28 @@
         * https://paperswithcode.com/sota/image-generation-generative-models-of-ci
         * https://paperswithcode.com/task/conditional-image-generation
 """
-
-import torch
-import torch.nn as nn
-from torch.autograd import Variable
-from torch.nn import functional as F
-import torch.utils.data
-from torchvision.models.inception import inception_v3
-
-from scipy.stats import entropy
-import scipy.misc
-from scipy import linalg
-import numpy as np
-from tqdm import tqdm
-from glob import glob
-import pathlib
 import os
 import sys
 import random
+import pathlib
+import numpy as np
+
+import torch
+import torch.nn as nn
+import torch.utils.data
+
+from torch.autograd import Variable
+from torch.nn import functional as F
+from torchvision.models.inception import inception_v3
+
+from imageio import imread
+from skimage.transform import resize
+from scipy.stats import entropy
+from scipy import linalg
+
+from tqdm import tqdm
+from glob import glob
+
 
 CUR_DIRNAME = os.path.dirname(os.path.abspath(__file__))
 
@@ -376,8 +380,8 @@ if __name__ == '__main__':
         img_list = []
         print('Reading Images from %s ...' % foldername)
         for file in tqdm(files):
-            img = scipy.misc.imread(file, mode='RGB')
-            img = scipy.misc.imresize(img, (299, 299), interp='bilinear')
+            img = imread(file, pilmode='RGB')
+            img = resize(img, (299, 299), mode='symmetric', preserve_range=True)
             img = np.cast[np.float32]((-128 + img) / 128.)  # 0~255 -> -1~1
             img = np.expand_dims(img, axis=0).transpose(0, 3, 1, 2)  # NHWC -> NCHW
             img_list.append(img)
