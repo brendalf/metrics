@@ -97,7 +97,7 @@ from torch.autograd import Variable
 from torch.nn import functional as F
 from torchvision.models.inception import inception_v3
 
-from imageio import imread
+from PIL import Image
 from skimage.transform import resize
 from scipy.stats import entropy
 from scipy import linalg
@@ -380,8 +380,8 @@ if __name__ == '__main__':
         img_list = []
         print('Reading Images from %s ...' % foldername)
         for file in tqdm(files):
-            img = imread(file, pilmode='RGB')
-            img = resize(img, (299, 299), mode='symmetric', preserve_range=True)
+            img = Image.open(file)
+            img = np.array(img.resize((299, 299), resample=Image.BILINEAR))
             img = np.cast[np.float32]((-128 + img) / 128.)  # 0~255 -> -1~1
             img = np.expand_dims(img, axis=0).transpose(0, 3, 1, 2)  # NHWC -> NCHW
             img_list.append(img)
